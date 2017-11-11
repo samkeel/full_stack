@@ -1,0 +1,91 @@
+.content{
+    max-width: 750px;
+    margin: auto;
+    font-family: 'Roboto', sans-serif;
+}
+
+
+.header {
+    display:flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    justify-content: space-between;
+    box-sizing: border-box;
+    flex: 1 auto;
+    border-bottom: 2px solid #7d97ad;
+}
+
+
+.logoimage {
+    max-width: 75px;
+    max-height: 75px;
+    margin: 20px;
+}
+
+
+.subtitle {
+    text-align: right ;    
+    margin-right: 5px;
+    color: #2d3c49
+}
+
+
+.name{
+    font-weight: 100;
+}
+
+
+.main_img{
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+
+.featured_work{
+    color: #7d97ad;
+    font-weight: 400;
+}
+
+
+a:link{
+    text-decoration: none;
+}
+
+
+a:hover {
+    text-decoration: underline;
+}
+
+a {
+    /* font-weight: 200; */
+}
+
+
+.projects{
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    justify-content: space-between;
+    color: #2d3c49
+}
+
+
+@media (max-width: 750px){
+    .projects{
+        justify-content: center;
+    }
+}
+
+
+.paragraph_text{
+    margin: 0;
+}
+
+
+.project_text{
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
