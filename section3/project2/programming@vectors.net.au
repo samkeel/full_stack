@@ -1,6 +1,12 @@
 #! /usr/bin/env python2.7
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import (Flask,
+                   render_template,
+                   request,
+                   redirect,
+                   url_for,
+                   jsonify,
+                   flash)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Catalogue, Item, Users
@@ -92,8 +98,8 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps(
+            'Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -122,15 +128,17 @@ def gconnect():
     output += '<img src="'
     output += login_session['picture']
     output += ' " style = "width: 300px; height: 300px;' \
-              'border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+              'border-radius: 150px;-webkit-border-radius: ' \
+              '150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
 
 
 """User login function.
-Check to see if user exists by email. If User doesnt exist then create new user entry and
-return unique user ID, if user is found return existing user ID. Store user ID in login_session variable.
+Check to see if user exists by email. If User doesnt exist then create
+new user entry and return unique user ID, if user is found return
+existing user ID. Store user ID in login_session variable.
 """
 
 
@@ -138,11 +146,13 @@ def retrieve_user(login_session):
     user = session.query(Users).filter_by(email=login_session['email']).first()
     if user is None:
         # Create new user
-        new_user = Users(username=login_session['username'], email=login_session['email'])
+        new_user = Users(username=login_session['username'],
+                         email=login_session['email'])
         session.add(new_user)
         session.commit()
         # Retrieve new users unique ID
-        user = session.query(Users).filter_by(email=login_session['email']).first()
+        user = session.query(Users).filter_by(
+            email=login_session['email']).first()
         return user.user_id
     else:
         return user.user_id
@@ -154,13 +164,15 @@ def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
         print 'Access Token is None'
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(json.dumps
+                                 ('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
     print 'In gdisconnect access token is %s', access_token
     print 'User name is: '
     print login_session['username']
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' %\
+          login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
@@ -186,6 +198,7 @@ def categoriesJSON():
     cats = session.query(Catalogue).all()
     return jsonify(Catalogues=[i.serialize for i in cats])
 
+
 # JSON route to show all items in the database in JSON format
 @app.route('/items/JSON')
 def itemsJSON():
@@ -209,28 +222,32 @@ def subCat(id):
     side_nav = session.query(Catalogue).all()
     subs = session.query(Item).filter_by(catalogue_id=id).all()
     new_title = session.query(Catalogue).filter_by(cat_id=id).first()
-    return render_template('subcat.html', side_nav=side_nav, subs=subs, newtitle=new_title)
+    return render_template('subcat.html', side_nav=side_nav, subs=subs,
+                           newtitle=new_title)
 
 
-# Selected movie summary: including title, description, posted user and links to edit.
+# Selected movie summary: including title, description,
+# posted user and links to edit.
 @app.route('/subcategory/item/<int:id>')
 def itemDetails(id):
     if 'username' not in login_session:
         flash('Please login to edit.')
     side_nav = session.query(Catalogue).all()
     subs = session.query(Item).filter_by(item_id=id).first()
-    user_post = session.query(Users).filter_by(user_id=subs.userpost_id).first()
-    return render_template('items.html', side_nav=side_nav, subs=subs, user_post=user_post)
+    user_post = session.query(Users).filter_by(
+        user_id=subs.userpost_id).first()
+    return render_template('items.html', side_nav=side_nav,
+                           subs=subs, user_post=user_post)
 
 
 # New movie Genre form
-@app.route('/catalogue/new/', methods=['GET','POST'])
+@app.route('/catalogue/new/', methods=['GET', 'POST'])
 def newCatalogue():
     if 'username' not in login_session:
         flash('Please login to make new Genre listings.')
     side_nav = session.query(Catalogue).all()
     if request.method == 'POST':
-        newCat = Catalogue(cat_name= request.form['usergenre'])
+        newCat = Catalogue(cat_name=request.form['usergenre'])
         session.add(newCat)
         session.commit()
         return redirect(url_for('showMain'))
@@ -239,8 +256,11 @@ def newCatalogue():
 
 
 # Edit item form
-@app.route('/subcategory/item/edit/<int:id>', methods=['GET','POST'])
+@app.route('/subcategory/item/edit/<int:id>', methods=['GET', 'POST'])
 def itemEdit(id):
+    if 'username' not in login_session:
+        flash('Please login to edit.')
+        return redirect('/main')
     side_nav = session.query(Catalogue).all()
     itemValue = session.query(Item).filter_by(item_id=id).first()
     if login_session['user_id'] != itemValue.userpost_id:
@@ -257,33 +277,41 @@ def itemEdit(id):
         session.commit()
         return redirect(url_for('itemDetails', id=itemValue.item_id))
     else:
-        return render_template('itemedit.html', side_nav=side_nav, item=itemValue)
+        return render_template('itemedit.html', side_nav=side_nav,
+                               item=itemValue)
 
 
 # Delete an item
-@app.route('/subcategory/item/delete/<int:id>', methods=['GET','POST'])
+@app.route('/subcategory/item/delete/<int:id>', methods=['GET', 'POST'])
 def delItem(id):
+    if 'username' not in login_session:
+        flash('Please login to delete your entries.')
+        return redirect('/main')
     side_nav = session.query(Catalogue).all()
     itemToDelete = session.query(Item).filter_by(item_id=id).first()
+    if login_session['user_id'] != itemToDelete.userpost_id:
+        flash("Only the items creator can delete the item")
+        return redirect('/main')
     if request.method == 'GET':
         session.delete(itemToDelete)
         session.commit()
         return redirect(url_for('subCat', id=itemToDelete.catalogue_id))
     else:
-        return render_template('itemedit.html', side_nav=side_nav, item=itemToDelete)
+        return render_template('itemedit.html', side_nav=side_nav,
+                               item=itemToDelete)
 
 
 # New item form
-@app.route('/subcategory/new/', methods=['GET','POST'])
+@app.route('/subcategory/new/', methods=['GET', 'POST'])
 def newItem():
     if 'username' not in login_session:
         flash('Please login to make new movie listings.')
     side_nav = session.query(Catalogue).all()
     if request.method == 'POST':
-        newEntry = Item(catalogue_id = request.form['usergenre'],
-                        userpost_id = login_session['user_id'],
-                        movie_title = request.form['usertitle'],
-                        movie_description = request.form['usersynopsis'])
+        newEntry = Item(catalogue_id=request.form['usergenre'],
+                        userpost_id=login_session['user_id'],
+                        movie_title=request.form['usertitle'],
+                        movie_description=request.form['usersynopsis'])
         session.add(newEntry)
         session.commit()
         # Refreshes the form to allow multiple new entries.
