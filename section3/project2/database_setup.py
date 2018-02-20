@@ -24,7 +24,7 @@ class Item(Base):
     __tablename__ = 'item'
 
     item_id = Column(Integer, primary_key=True)
-    catalogue_id = Column(Integer, ForeignKey('catalogue.cat_id')) # <--- many
+    catalogue_id = Column(Integer, ForeignKey('catalogue.cat_id'))
     userpost_id = Column(Integer, nullable=False)
     movie_title = Column(String(), nullable=False)
     movie_description = Column(String(255), nullable=False)
