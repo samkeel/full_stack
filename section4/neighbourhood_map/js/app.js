@@ -34,9 +34,9 @@ var popInfoWindow = function (marker, infoWindow) {
 			// set display values
 			self.name = response.name;
 			self.address =
-				response.location.formattedAddress[0] +
-				' , ' +
-				response.location.formattedAddress[1];
+				(response.location.formattedAddress[0] || '') +
+				' ' +
+				(response.location.formattedAddress[1] || '');
 			self.here = response.hereNow.summary;
 
 			// InfoWindow output
@@ -52,10 +52,12 @@ var popInfoWindow = function (marker, infoWindow) {
 			infoWindow.setContent(infoContent);
 		})
 		.fail(function () {
-			infoContent =
+		 	//InfoWindow error output
+			self.infoContent =
 				'<div class="infowin"><h3>' +
 				marker.title +
 				'</h3><string>Error occured loading the FourSquare API</string></div>';
+			infoWindow.setContent(infoContent);
 		});
 
 	infoWindow.open(map, marker);
@@ -94,7 +96,7 @@ var ViewModel = function () {
 		//create markers
 		var marker;
 		//loop through places.js placing markers on map
-		for (var i = 0; i < dataArray.length; i++) {
+		for (var i = 0, len = dataArray.length; i < len; i++) {
 			marker = new google.maps.Marker({
 				position: new google.maps.LatLng(dataArray[i].lat, dataArray[i].lng),
 				map: map,
@@ -117,7 +119,7 @@ var ViewModel = function () {
 	//filter list and markers
 	this.filteredItems = ko.computed(function () {
 		var filteredLocations = [];
-		for (var i = 0; i < this.markers.length; i++) {
+		for (var i = 0, len = this.markers.length; i < len; i++) {
 			var pointer = this.markers[i];
 			var query = pointer.title.toLowerCase();
 			if (query.includes(this.searchBar().toLowerCase())) {
